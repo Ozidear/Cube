@@ -1,0 +1,209 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Dvarim
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Cube cube1 = new Cube(Cube.Color.Black, Cube.Color.Red, Cube.Color.Green, Cube.Color.Yellow, Cube.Color.Yellow, Cube.Color.Yellow);
+            //Console.WriteLine(cube1);
+
+            List<Cube.Color[]> states = new List<Cube.Color[]>();
+
+            for (int i = 0; i < 24; i++)
+                for (int j = 0; j < 24; j++)
+                    for (int k = 0; k < 24; k++)
+                        for (int l = 0; l < 24; l++)
+                        {
+
+                        }
+
+            Console.WriteLine(LineIsValid(Cube.Color.Red, Cube.Color.Red, Cube.Color.Black, Cube.Color.Black));
+        }
+        static bool LineIsValid(Cube.Color face1, Cube.Color face2, Cube.Color face3, Cube.Color face4)
+        {
+            Cube.Color[] line = { face1, face2, face3, face4 };
+
+            for (int i = 0,  j = 1; i < 3; j++)
+            {
+                if (line[i] == line[j])
+                    return false;
+
+                if (j == 3)
+                {
+                    i++;
+                    j = i;
+                }
+            }
+
+            return true;
+        }
+    }
+}
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Dvarim
+{
+    class Cube
+    {
+        public enum Color { Red, Black, Green, Yellow }
+
+        Color faceUp, faceDown, faceRight, faceLeft, faceFront, faceBack;
+        int position;
+
+        public Cube(Color faceUp, Color faceDown, Color faceRight, Color faceLeft, Color faceFront, Color faceBack)
+        {
+            this.faceUp = faceUp;
+            this.faceDown = faceDown;
+            this.faceRight = faceRight;
+            this.faceLeft = faceLeft;
+            this.faceFront = faceFront;
+            this.faceBack = faceBack;
+            position = 1;
+        }
+
+        public override string ToString()
+        {
+            string str = "";
+
+            str += ($"Up = {faceUp}\n");
+            str += ($"Down = {faceDown}\n");
+            str += ($"Right = {faceRight}\n");
+            str += ($"Left = {faceLeft}\n");
+            str += ($"Front = {faceFront}\n");
+            str += ($"Back = {faceBack}\n");
+
+            return str;
+        }
+
+        public Color GetUpFace() => faceUp;
+        public Color GetDownFace() => faceDown;
+        public Color GetRightFace() => faceRight;
+        public Color GetLeftFace() => faceLeft;
+        public Color GetFrontFace() => faceFront;
+        public Color GetBackFace() => faceBack;
+
+        public void ShiftCube()
+        {
+            if (position <= 4)
+            {
+                YawRight();
+
+                if (position == 4)
+                    PitchUp();
+            }
+            else if (position <= 8)
+            {
+                RollRight();
+
+                if (position == 8)
+                    PitchUp();
+            }
+            else if (position <= 12)
+            {
+                YawRight();
+
+                if (position == 12)
+                    PitchUp();
+            }
+            else if (position <= 16)
+            {
+                RollRight();
+
+                if (position == 16)
+                {
+                    PitchUp();
+                    RollRight();
+                }
+            }
+            else if (position <= 20)
+            {
+                PitchUp();
+
+                if (position == 20)
+                {
+                    RollLeft();
+                    RollLeft();
+                }
+            }
+            else if (position <= 24)
+            {
+                PitchUp();
+
+                if (position == 24)
+                {
+                    RollRight();
+                    position = -1;
+                }
+            }
+
+
+            position++;
+        }
+
+        public void PitchUp()
+        {
+            Color temp = faceUp;
+
+            faceUp = faceFront;
+            faceFront = faceDown;
+            faceDown = faceBack;
+            faceBack = temp;
+        }
+        public void PitchDown()
+        {
+            Color temp = faceUp;
+
+            faceUp = faceBack;
+            faceBack = faceDown;
+            faceDown = faceFront;
+            faceFront = temp;
+        }
+        public void RollRight()
+        {
+            Color temp = faceUp;
+
+            faceUp = faceLeft;
+            faceLeft = faceDown;
+            faceDown = faceRight;
+            faceRight = temp;
+        }
+        public void RollLeft()
+        {
+            Color temp = faceUp;
+
+            faceUp = faceRight;
+            faceRight = faceDown;
+            faceDown = faceLeft;
+            faceLeft = temp;
+        }
+        public void YawRight()
+        {
+            Color temp = faceFront;
+
+            faceFront = faceLeft;
+            faceLeft = faceBack;
+            faceBack = faceRight;
+            faceRight = temp;
+        }
+        public void YawLeft()
+        {
+            Color temp = faceFront;
+
+            faceFront = faceRight;
+            faceRight = faceBack;
+            faceBack = faceLeft;
+            faceLeft = temp;
+        }
+    }
+}
