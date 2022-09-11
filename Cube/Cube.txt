@@ -10,26 +10,59 @@ namespace Dvarim
     {
         static void Main(string[] args)
         {
-            Cube cube1 = new Cube(Cube.Color.Black, Cube.Color.Red, Cube.Color.Green, Cube.Color.Yellow, Cube.Color.Yellow, Cube.Color.Yellow);
-            //Console.WriteLine(cube1);
+            Cube cube1 = new Cube(Cube.Color.Black, Cube.Color.Yellow, Cube.Color.Green, Cube.Color.Green, Cube.Color.Red, Cube.Color.Black);
+            Cube cube2 = new Cube(Cube.Color.Red, Cube.Color.Green, Cube.Color.Yellow, Cube.Color.Black, Cube.Color.Yellow, Cube.Color.Red);
+            Cube cube3 = new Cube(Cube.Color.Green, Cube.Color.Yellow, Cube.Color.Black, Cube.Color.Red, Cube.Color.Red, Cube.Color.Green);
+            Cube cube4 = new Cube(Cube.Color.Black, Cube.Color.Red, Cube.Color.Yellow, Cube.Color.Green, Cube.Color.Yellow, Cube.Color.Yellow);
 
-            List<Cube.Color[]> states = new List<Cube.Color[]>();
+            int solutionCounter = 1;
 
             for (int i = 0; i < 24; i++)
+            {
+                cube1.ShiftCube();
+
                 for (int j = 0; j < 24; j++)
+                {
+                    cube2.ShiftCube();
+
                     for (int k = 0; k < 24; k++)
+                    {
+                        cube3.ShiftCube();
+
                         for (int l = 0; l < 24; l++)
                         {
+                            cube4.ShiftCube();
 
+                            if (ArangementIsValid(cube1, cube2, cube3, cube4))
+                            {
+                                Console.WriteLine($"Solution {solutionCounter}:\n");
+                                Console.WriteLine("Cube 1:\n" + cube1);
+                                Console.WriteLine("Cube 2:\n" + cube2);
+                                Console.WriteLine("Cube 3:\n" + cube3);
+                                Console.WriteLine("Cube 4:\n" + cube4);
+                                Console.WriteLine();
+
+                                solutionCounter++;
+                            }
                         }
-
-            Console.WriteLine(LineIsValid(Cube.Color.Red, Cube.Color.Red, Cube.Color.Black, Cube.Color.Black));
+                    }
+                }
+            }
         }
-        static bool LineIsValid(Cube.Color face1, Cube.Color face2, Cube.Color face3, Cube.Color face4)
+        static bool ArangementIsValid(Cube cube1, Cube cube2, Cube cube3, Cube cube4)
+        {
+            bool topRow = RowIsValid(cube1.GetTopFace(), cube2.GetTopFace(), cube3.GetTopFace(), cube4.GetTopFace());
+            bool bottomRow = RowIsValid(cube1.GetBottomFace(), cube2.GetBottomFace(), cube3.GetBottomFace(), cube4.GetBottomFace());
+            bool frontRow = RowIsValid(cube1.GetFrontFace(), cube2.GetFrontFace(), cube3.GetFrontFace(), cube4.GetFrontFace());
+            bool backRow = RowIsValid(cube1.GetBackFace(), cube2.GetBackFace(), cube3.GetBackFace(), cube4.GetBackFace());
+
+            return topRow && bottomRow && frontRow && backRow;
+        }
+        static bool RowIsValid(Cube.Color face1, Cube.Color face2, Cube.Color face3, Cube.Color face4)
         {
             Cube.Color[] line = { face1, face2, face3, face4 };
 
-            for (int i = 0,  j = 1; i < 3; j++)
+            for (int i = 0, j = 1; i < 3; j++)
             {
                 if (line[i] == line[j])
                     return false;
@@ -58,13 +91,13 @@ namespace Dvarim
     {
         public enum Color { Red, Black, Green, Yellow }
 
-        Color faceUp, faceDown, faceRight, faceLeft, faceFront, faceBack;
+        Color faceTop, faceBottom, faceRight, faceLeft, faceFront, faceBack;
         int position;
 
-        public Cube(Color faceUp, Color faceDown, Color faceRight, Color faceLeft, Color faceFront, Color faceBack)
+        public Cube(Color faceTop, Color faceBottom, Color faceRight, Color faceLeft, Color faceFront, Color faceBack)
         {
-            this.faceUp = faceUp;
-            this.faceDown = faceDown;
+            this.faceTop = faceTop;
+            this.faceBottom = faceBottom;
             this.faceRight = faceRight;
             this.faceLeft = faceLeft;
             this.faceFront = faceFront;
@@ -76,8 +109,8 @@ namespace Dvarim
         {
             string str = "";
 
-            str += ($"Up = {faceUp}\n");
-            str += ($"Down = {faceDown}\n");
+            str += ($"Up = {faceTop}\n");
+            str += ($"Down = {faceBottom}\n");
             str += ($"Right = {faceRight}\n");
             str += ($"Left = {faceLeft}\n");
             str += ($"Front = {faceFront}\n");
@@ -86,8 +119,8 @@ namespace Dvarim
             return str;
         }
 
-        public Color GetUpFace() => faceUp;
-        public Color GetDownFace() => faceDown;
+        public Color GetTopFace() => faceTop;
+        public Color GetBottomFace() => faceBottom;
         public Color GetRightFace() => faceRight;
         public Color GetLeftFace() => faceLeft;
         public Color GetFrontFace() => faceFront;
@@ -95,38 +128,26 @@ namespace Dvarim
 
         public void ShiftCube()
         {
-            if (position <= 4)
+            if (position <= 4 || position > 8 && position <= 12)
             {
                 YawRight();
 
-                if (position == 4)
+                if (position == 4 || position == 12)
                     PitchUp();
             }
-            else if (position <= 8)
+            else if (position <= 8 || position > 12 && position <= 16)
             {
                 RollRight();
 
-                if (position == 8)
-                    PitchUp();
-            }
-            else if (position <= 12)
-            {
-                YawRight();
-
-                if (position == 12)
-                    PitchUp();
-            }
-            else if (position <= 16)
-            {
-                RollRight();
-
-                if (position == 16)
+                if (position == 8 || position == 16)
                 {
                     PitchUp();
-                    RollRight();
+
+                    if (position == 16)
+                        RollRight();
                 }
             }
-            else if (position <= 20)
+            else if (position <= 24)
             {
                 PitchUp();
 
@@ -135,11 +156,6 @@ namespace Dvarim
                     RollLeft();
                     RollLeft();
                 }
-            }
-            else if (position <= 24)
-            {
-                PitchUp();
-
                 if (position == 24)
                 {
                     RollRight();
@@ -147,44 +163,34 @@ namespace Dvarim
                 }
             }
 
-
             position++;
         }
 
         public void PitchUp()
         {
-            Color temp = faceUp;
+            Color temp = faceTop;
 
-            faceUp = faceFront;
-            faceFront = faceDown;
-            faceDown = faceBack;
+            faceTop = faceFront;
+            faceFront = faceBottom;
+            faceBottom = faceBack;
             faceBack = temp;
-        }
-        public void PitchDown()
-        {
-            Color temp = faceUp;
-
-            faceUp = faceBack;
-            faceBack = faceDown;
-            faceDown = faceFront;
-            faceFront = temp;
         }
         public void RollRight()
         {
-            Color temp = faceUp;
+            Color temp = faceTop;
 
-            faceUp = faceLeft;
-            faceLeft = faceDown;
-            faceDown = faceRight;
+            faceTop = faceLeft;
+            faceLeft = faceBottom;
+            faceBottom = faceRight;
             faceRight = temp;
         }
         public void RollLeft()
         {
-            Color temp = faceUp;
+            Color temp = faceTop;
 
-            faceUp = faceRight;
-            faceRight = faceDown;
-            faceDown = faceLeft;
+            faceTop = faceRight;
+            faceRight = faceBottom;
+            faceBottom = faceLeft;
             faceLeft = temp;
         }
         public void YawRight()
@@ -195,15 +201,6 @@ namespace Dvarim
             faceLeft = faceBack;
             faceBack = faceRight;
             faceRight = temp;
-        }
-        public void YawLeft()
-        {
-            Color temp = faceFront;
-
-            faceFront = faceRight;
-            faceRight = faceBack;
-            faceBack = faceLeft;
-            faceLeft = temp;
         }
     }
 }
